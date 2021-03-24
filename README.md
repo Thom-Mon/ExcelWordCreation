@@ -9,3 +9,5 @@ Creates random ExcelFile (xlsx) with settings for the random values. Not yet fin
 5. Create Excelfile
 
 Please consider that this program is still in building process and therefore far from perfect.
+
+![Image of MainWindow](https://github.com/Thom-Mon/ExcelWordCreation/blob/9b5d02a8899f3701c0fe2a44020ba9a81bf59da2/ExcelCreation.PNG)
