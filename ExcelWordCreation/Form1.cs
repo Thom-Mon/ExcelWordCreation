@@ -17,43 +17,21 @@ namespace ExcelWordCreation
 {
     public partial class Form1 : Form
     {
-       public Form1()
+        public Form1()
         {
             InitializeComponent();
-            
+
         }
         private
             List<int> usedColumns = new List<int> { };
-  
+
         //RANDOM CREATIONS ###########################
-        private string createRandomCompleteName()
+        private int createRandomNumberbetween(int startValue, int EndValue)
         {
-            string randomCustomer ="";
-            string [] customerNames = { "Bernd Friedemann", 
-                                        "Möller, Ralf",
-                                        "Theo Landwig",
-                                        "Mael Klaus",
-                                        "Laus, Siegbert",
-                                        "Jenzig, Mareen",
-                                        "Theo Landwig",
-                                        "Schmidt, Gunnar",
-                                        "Liebmann, Falco",
-                                        "Justus Hofmann",
-                                        "Jens Melke",
-                                        "Pomm Gerd",
-                                        "Jungklaus Karsten",
-                                        "Löber, Lars",};
-            Random random = new Random(Guid.NewGuid().GetHashCode()); //Random Value Checken####################
-            randomCustomer= customerNames[random.Next(0, customerNames.Length - 1)];
-
-        
-
-            
-
-
-            return randomCustomer;
-
+            Random random = new Random(Guid.NewGuid().GetHashCode());
+            return random.Next(startValue, EndValue);
         }
+
         private string createRandomSurname()
         {
             string line;
@@ -67,9 +45,8 @@ namespace ExcelWordCreation
                 surnames.Add(line);
             }
             file.Close();
-            
-            Random random = new Random(Guid.NewGuid().GetHashCode());
-            randomSurname= surnames[random.Next(0, surnames.Count - 1)];
+
+            randomSurname = surnames[createRandomNumberbetween(0, surnames.Count - 1)];
 
             return randomSurname;
         }
@@ -87,29 +64,28 @@ namespace ExcelWordCreation
             }
             file.Close();
 
-            Random random = new Random(Guid.NewGuid().GetHashCode());
-            randomName = names[random.Next(0, names.Count - 1)];
+            randomName = names[createRandomNumberbetween(0, names.Count - 1)];
 
             return randomName;
         }
         private string createRandomGood()
         {
             string randomCompany = "";
-            string[] companyNames = { "Gerste","Weizen","Dünger EzBN1", "Kartoffel - Rosaria","Hopfen Friess","Kornspäht","Saat 1F","Saat 1B","Kernsaat 4J"};
+            string[] companyNames = { "Gerste", "Weizen", "Dünger EzBN1", "Kartoffel - Rosaria", "Hopfen Friess", "Kornspäht", "Saat 1F", "Saat 1B", "Kernsaat 4J" };
             Random random = new Random();
             randomCompany = companyNames[random.Next(0, companyNames.Length - 1)];
             return randomCompany;
         }
         private string createRandomFilename()
         {
-            
+
 
             string filenamePrefix = "Liste Kunde-";
             string addedFilenameParameter = RandomString(4);
 
 
 
-            return filenamePrefix+addedFilenameParameter;
+            return filenamePrefix + addedFilenameParameter;
         }
         public string RandomString(int size, bool lowerCase = false)
         {
@@ -139,8 +115,8 @@ namespace ExcelWordCreation
             Microsoft.Office.Interop.Excel._Worksheet oSheet;
             Microsoft.Office.Interop.Excel.Range oRng;
             object misvalue = System.Reflection.Missing.Value;
-            string fileName = folderBrowserDialog1.SelectedPath+"\\"+createRandomFilename();
-            
+            string fileName = folderBrowserDialog1.SelectedPath + "\\" + createRandomFilename();
+
             try
             {
                 //Start Excel and get Application object.
@@ -181,15 +157,15 @@ namespace ExcelWordCreation
                     string chosenOption = comboBox.SelectedItem.ToString();
 
                     //Translate Cell Coordinates
-                    string[] columnIndex = { "A", "B", "C", "D", "E", "F","G","H","I" };
+                    string[] columnIndex = { "A", "B", "C", "D", "E", "F", "G", "H", "I" };
                     string startCell = columnIndex[element - 1] + 2;
                     string endCell = columnIndex[element - 1] + textBoxAmountOfLines.Text;
-                    
-                   
+
+
                     switch (chosenOption)
                     {
                         case "Vorname":
-                            
+
                             for (int i = 0; i < parsedString; i++)
                             {
                                 saNames[i, element - 1] = createRandomSurname();
@@ -202,29 +178,83 @@ namespace ExcelWordCreation
                             {
                                 saNames[i, element - 1] = createRandomFamilyName();
                             }
-                            
+
                             break;
 
                         case "Vorname + Nachname":
-                            
+
                             for (int i = 0; i < parsedString; i++)
                             {
-                                saNames[i, element - 1] = createRandomSurname()+" "+createRandomFamilyName();
+                                saNames[i, element - 1] = createRandomSurname() + " " + createRandomFamilyName();
                             }
 
-                            
+
                             break;
 
                         case "Fortlaufende Zahl":
                             for (int i = 0; i < parsedString; i++)
                             {
-                                saNames[i, element - 1] = (i+1).ToString();
+                                saNames[i, element - 1] = (i + 1).ToString();
                             }
+                            break;
+                        case "Datum":
+                            Console.WriteLine("in Datum");
+                            List<int> randomNumbers = new List<int> { };
+                            string start = "TextBoxStart" + rebuildCaller;
+                            string end = "TextBoxEnd" + rebuildCaller;
+
+                            string startValue = "0";
+                            string endValue = "100";
+                            //GET THE START AND ENDVALUE FROM TEXTBOX
+                            foreach (Control item in this.Controls)
+                            {
+                                if (item.AccessibleName == start)
+                                {
+                                    startValue = item.Text;
+                                }
+                                if (item.AccessibleName == end)
+                                {
+                                    endValue = item.Text;
+                                }
+                            }
+
+
+                            //GET THE DATEVALUE
+                            DateTime startDate = DateTime.Parse(startValue);
+                            DateTime endDate = DateTime.Parse(endValue);
+                            //EXCEL BASED TIMESTART
+                            DateTime excelStartDate = DateTime.Parse("01.01.1900");
+                            double daysBetweenSetup = (endDate - startDate).TotalDays;
+                            double daysSinceExcel = (startDate - excelStartDate).TotalDays;
+                            Console.WriteLine("Exceldays: " + daysSinceExcel + "Days between Setup: " + daysBetweenSetup);//DEBUG
+
+                            //GET THE RANDOM NUMBER IN NUMERIC ORDER
+                            for (int i = 0; i < parsedString; i++)
+                            {
+                                randomNumbers.Add(createRandomNumberbetween(0, (int)daysBetweenSetup));
+                            }
+                            randomNumbers.Sort();
+
+                            for (int i = 0; i < parsedString; i++)
+                            {
+                                if (i == 0)
+                                {
+                                    DateTime realDateValue = startDate;
+                                    saNames[i, element - 1] = realDateValue.ToString();
+                                }
+                                else
+                                {
+                                    DateTime realDateValue = startDate.AddDays(randomNumbers[i]);
+                                    saNames[i, element - 1] = realDateValue.ToString();//         (daysSinceExcel + i).ToString();
+                                }
+                            }
+
+
                             break;
 
                         default:
-                            endCell = columnIndex[element - 1] + (parsedString+1).ToString();
-                            
+                            endCell = columnIndex[element - 1] + (parsedString + 1).ToString();
+
                             Appendix appendix = new Appendix();
                             appendix.ChosenOption = chosenOption;
                             appendix.StartCell = startCell;
@@ -234,7 +264,7 @@ namespace ExcelWordCreation
                             break;
                     }
                 }
-                
+
 
                 oSheet.get_Range("A2", "I" + (parsedString + 1).ToString()).Value2 = saNames;
 
@@ -245,16 +275,15 @@ namespace ExcelWordCreation
                     switch (Object.ChosenOption)
                     {
                         case "€ - Werte":
-                            string start = "TextBoxStart"+Object.CalledBox;
+                            string start = "TextBoxStart" + Object.CalledBox;
                             string end = "TextBoxEnd" + Object.CalledBox;
 
-                            string startValue= "0";
+                            string startValue = "0";
                             string endValue = "100";
-
 
                             foreach (Control item in this.Controls)
                             {
-                                if(item.AccessibleName==start)
+                                if (item.AccessibleName == start)
                                 {
                                     startValue = item.Text;
                                 }
@@ -266,7 +295,7 @@ namespace ExcelWordCreation
 
                             oRng = oSheet.get_Range(Object.StartCell, Object.EndCell);
                             oRng.Formula = $"=RAND()*({endValue}-{startValue})+{startValue}";
-                         
+
                             oRng.NumberFormat = "$0.00";
                             oRng.Copy(Type.Missing);
                             oRng.PasteSpecial(Microsoft.Office.Interop.Excel.XlPasteType.xlPasteValues, Microsoft.Office.Interop.Excel.XlPasteSpecialOperation.xlPasteSpecialOperationNone, false, false);
@@ -274,8 +303,43 @@ namespace ExcelWordCreation
                             //  = ZUFALLSZAHL() * (b - a) + a //Zufallsbereich
                             break;
 
-                        case "Datum":
-                            richTextBox1.AppendText("Datum");
+                        case "Datum-":
+                            Console.WriteLine("in Datum");
+                            start = "TextBoxStart" + Object.CalledBox;
+                            end = "TextBoxEnd" + Object.CalledBox;
+
+                            startValue = "0";
+                            endValue = "100";
+
+                            foreach (Control item in this.Controls)
+                            {
+                                if (item.AccessibleName == start)
+                                {
+                                    startValue = item.Text;
+                                }
+                                if (item.AccessibleName == end)
+                                {
+                                    endValue = item.Text;
+                                }
+                            }
+                            //GET THE DATEVALUE
+                            DateTime startDate = DateTime.Parse(startValue);
+                            DateTime endDate = DateTime.Parse(endValue);
+                            //EXCEL BASED TIMESTART
+                            DateTime excelStartDate = DateTime.Parse("01.01.1900");
+                            double daysBetweenSetup = (endDate - startDate).TotalDays;
+                            double daysSinceExcel = (startDate - excelStartDate).TotalDays;
+                            Console.WriteLine("Exceldays: " + daysSinceExcel + "Days between Setup: " + daysBetweenSetup);//DEBUG
+
+
+                            oRng = oSheet.get_Range(Object.StartCell, Object.EndCell);
+                            Console.WriteLine("Zelle angewendet");
+                            //oRng.NumberFormat = "@";
+                            oRng.Formula = $"=DATEVALUE(\"{startValue}\")";
+                            Console.WriteLine("Formel angewendet");
+                            //oRng.NumberFormat = "$0.00";
+                            oRng.Copy(Type.Missing);
+                            oRng.PasteSpecial(Microsoft.Office.Interop.Excel.XlPasteType.xlPasteValues, Microsoft.Office.Interop.Excel.XlPasteSpecialOperation.xlPasteSpecialOperationNone, false, false);
 
                             break;
 
@@ -289,7 +353,7 @@ namespace ExcelWordCreation
 
                 }
 
-                
+
                 //Fill with an array of values the specified amount starting at A2
                 //oSheet.get_Range("A2", "F"+ (parsedString + 1).ToString()).Value2 = saNames;
 
@@ -319,7 +383,7 @@ namespace ExcelWordCreation
                 oWB.SaveAs(fileName, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing,
                     false, false, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlNoChange,
                     Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-                
+
                 oWB.Close(0);
                 oXL.Quit();
 
@@ -331,10 +395,14 @@ namespace ExcelWordCreation
             }
             catch
             {
-             
+                Process[] excelProcs = Process.GetProcessesByName("EXCEL");
+                foreach (Process proc in excelProcs)
+                {
+                    proc.Kill();
+                }
             }
         }
-      
+
 
         //BUTTONS #####################################
         private void buttonFile_Click(object sender, EventArgs e)
@@ -346,7 +414,7 @@ namespace ExcelWordCreation
                 {
                     labelCreatePath.Text = folderBrowserDialog1.SelectedPath;
                     button1.Enabled = true;
-                    
+
                 }
                 catch
                 {
@@ -397,18 +465,18 @@ namespace ExcelWordCreation
 
             //labelCalledBox.Text = calledComboBox;
 
-            switch(chosenItem)
+            switch (chosenItem)
             {
                 case "Vorname":
-                    
+
                     break;
                 case "Nachname":
-                  
+
 
                     break;
 
                 case "Vorname + Nachname":
-                    
+
                     break;
 
                 case "Fortlaufende Zahl":
@@ -424,16 +492,33 @@ namespace ExcelWordCreation
                     endEuro.AccessibleName = "TextBoxEnd" + calledComboBox; ;
                     this.Controls.Add(startEuro);
                     this.Controls.Add(endEuro);
-                    startEuro.Location = new Point(locationX, locationY+40); //43; 183
-                    endEuro.Location = new Point(locationX, locationY+80);
+                    startEuro.Location = new Point(locationX, locationY + 40); //43; 183
+                    endEuro.Location = new Point(locationX, locationY + 80);
                     startEuro.Height = 25;//157; 25
                     startEuro.Width = 157;
                     endEuro.Height = 25;
                     endEuro.Width = 157;
                     break;
 
+                case "Datum":
+                    TextBox startDate = new TextBox();
+                    TextBox endDate = new TextBox();
+                    startDate.Text = "19.03.2000";
+                    endDate.Text = "10.03.2020";
+                    startDate.AccessibleName = "TextBoxStart" + calledComboBox;
+                    endDate.AccessibleName = "TextBoxEnd" + calledComboBox; ;
+                    this.Controls.Add(startDate);
+                    this.Controls.Add(endDate);
+                    startDate.Location = new Point(locationX, locationY + 40); //43; 183
+                    endDate.Location = new Point(locationX, locationY + 80);
+                    startDate.Height = 25;//157; 25
+                    startDate.Width = 157;
+                    endDate.Height = 25;
+                    endDate.Width = 157;
+                    break;
+
                 default:
-                    
+
 
                     break;
             }
@@ -444,19 +529,19 @@ namespace ExcelWordCreation
         }
 
         // Create a TextBox object  
-       /* TextBox dynamicTextBox = newTextBox();
+        /* TextBox dynamicTextBox = newTextBox();
 
 
-           // Set background and foreground  
-           dynamicTextBox.BackColor = Color.Red;  
-            dynamicTextBox.ForeColor = Color.Blue;  
-    dynamicTextBox.Text = "I am Dynamic TextBox";  
-    dynamicTextBox.Name = "DynamicTextBox";  
-    dynamicTextBox.Font = newFont("Georgia", 16);
+            // Set background and foreground  
+            dynamicTextBox.BackColor = Color.Red;  
+             dynamicTextBox.ForeColor = Color.Blue;  
+     dynamicTextBox.Text = "I am Dynamic TextBox";  
+     dynamicTextBox.Name = "DynamicTextBox";  
+     dynamicTextBox.Font = newFont("Georgia", 16);
 
 
 
-            Controls.Add(dynamicTextBox);*/
+             Controls.Add(dynamicTextBox);*/
 
 
     }
@@ -486,6 +571,7 @@ namespace ExcelWordCreation
         string startCell;
         string endCell;
         string calledBox;
-        
+
     }
 }
+
